@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+	    <template id="website_customer_comment" inherit_id="website_sale.address">
+	        <xpath expr="//select[@name='country_id']" position="after">
+	             <label>Customer Comments:</label>
+	             <textarea rows="4" cols="50"
+	             	 name="comment" class="form-control oe_customer_comment">
+	             </textarea>
+	        </xpath>
+	    </template>
+	</data>
+</odoo>
+

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+ <template id="custom_order_report" inherit_id="website_sale.report_shop_saleorder_document">
+	  <xpath expr="//div[@name='total']" position="after">
+		<t t-if="doc.comment">
+		   <strong>Customer Comments:</strong>
+		   <span t-field="doc.comment"/>
+		</t>
+	</xpath>
+</template>
+</odoo>

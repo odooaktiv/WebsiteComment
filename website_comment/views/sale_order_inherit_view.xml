@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+    <record id="inherit_view_sale_order" model="ir.ui.view">
+        <field name="name">inherit.sale.order</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/sheet/notebook/page/group/group[@name='sales_person']/field[@name='client_order_ref']" position="after">
+                <field name="comment" class="oe_customer_commment"/>
+            </xpath>
+        </field>
+    </record>
+    </data>
+</odoo>
