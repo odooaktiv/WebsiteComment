@@ -12,7 +12,7 @@
     'data': [
         'views/sale_order_inherit_view.xml',
         'static/src/xml/website_sale_order_template.xml',
-	'report/sale_report_template_inherited.xml',
+        'report/sale_report_template_inherited.xml',
     ],
     'images': ['static/description/banner.jpg'],
     'auto_install': False,

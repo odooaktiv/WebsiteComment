@@ -9,14 +9,15 @@ from odoo.osv.orm import browse_record
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 
 class Webcomment(WebsiteSale):
+    
 
     @http.route(['/shop/address'], type='http', methods=['GET', 'POST'], auth="public", website=True)
     def address(self, **kw):
         Partner = request.env['res.partner'].with_context(show_address=1).sudo()
         order = request.website.sale_get_order()
-
         if order:
-             order.write({'comment': kw.get('comment')})
+            order.write({'comment': kw.get('comment')})
+
 
         redirection = self.checkout_redirection(order)
         if redirection:
