@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<openerp>
 	<data>
-	    <template id="website_customer_comment" inherit_id="website_sale.address">
+	    <template id="website_customer_comment" inherit_id="website_sale.checkout">
 	        <xpath expr="//select[@name='country_id']" position="after">
 	             <label>Customer Comments:</label>
 	             <textarea rows="4" cols="50"
@@ -10,5 +10,5 @@
 	        </xpath>
 	    </template>
 	</data>
-</odoo>
+</openerp>
 

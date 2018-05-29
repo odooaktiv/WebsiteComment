@@ -1,6 +1,6 @@
 ------------------------------------
 
-Odoo Version : Odoo 10.0 Community
+Odoo Version : Odoo 9.0 Community
 
 
 Installation 
@@ -20,5 +20,3 @@ Overview
 -> Whenever an order is created from website, populate the field comment.
 -> Entry of that field will get displayed in the quotations from the website.
 
-* Report:
--> "Customer comment" field is also found in the quotation and sale order reports.

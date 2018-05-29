@@ -8,7 +8,7 @@
     'author': 'Aktiv Software',
     'license': 'AGPL-3',
     'description': 'The purpose of this module is, it helps to add a comment box on the website checkout and by confirming details it will gets saved too.',
-    'depends': ['base', 'sale', 'website_sale'],
+    'depends': ['base', 'website_sale'],
     'data': [
         'views/sale_order_inherit_view.xml',
         'static/src/xml/website_sale_order_template.xml',

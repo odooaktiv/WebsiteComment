@@ -1,92 +1,48 @@
 # -*- coding: utf-8 -*-
-from odoo import SUPERUSER_ID
+from openerp import SUPERUSER_ID
 
-import odoo
-from odoo import http
-from odoo import fields, api, _
-from odoo.http import request
-from odoo.osv.orm import browse_record
-from odoo.addons.website_sale.controllers.main import WebsiteSale
+import openerp
+from openerp import http
+from openerp import fields, api, _
+from openerp.http import request
+from openerp.osv.orm import browse_record
+from openerp.addons.website_sale.controllers.main import website_sale
 
-class Webcomment(WebsiteSale):
-    
+class Webcomment(website_sale):
 
-    @http.route(['/shop/address'], type='http', methods=['GET', 'POST'], auth="public", website=True)
-    def address(self, **kw):
-        Partner = request.env['res.partner'].with_context(show_address=1).sudo()
-        order = request.website.sale_get_order()
+    @http.route(['/shop/confirm_order'], type='http', auth="public", website=True)
+    def confirm_order(self, **post):
+        cr, uid, context, registry = request.cr, request.uid, request.context, request.registry
+
+        order = request.website.sale_get_order(context=context)
         if order:
-            order.write({'comment': kw.get('comment')})
+            order.write({'comment': post.get('comment')})
 
+        if not order:
+            return request.redirect("/shop")
 
         redirection = self.checkout_redirection(order)
         if redirection:
             return redirection
 
-        mode = (False, False)
-        def_country_id = order.partner_id.country_id
-        values, errors = {}, {}
+        values = self.checkout_values(post)
 
-        partner_id = int(kw.get('partner_id', -1))
+        values["error"], values["error_message"] = self.checkout_form_validate(values["checkout"])
+        if values["error"]:
+            return request.website.render("website_sale.checkout", values)
 
-        # IF PUBLIC ORDER
-        if order.partner_id.id == request.website.user_id.sudo().partner_id.id:
-            mode = ('new', 'billing')
-            country_code = request.session['geoip'].get('country_code')
-            if country_code:
-                def_country_id = request.env['res.country'].search([('code', '=', country_code)], limit=1)
-            else:
-                def_country_id = request.website.user_id.sudo().country_id
-        # IF ORDER LINKED TO A PARTNER
-        else:
-            if partner_id > 0:
-                if partner_id == order.partner_id.id:
-                    mode = ('edit', 'billing')
-                else:
-                    shippings = Partner.search([('id', 'child_of', order.partner_id.commercial_partner_id.ids)])
-                    if partner_id in shippings.mapped('id'):
-                        mode = ('edit', 'shipping')
-                    else:
-                        return Forbidden()
-                if mode:
-                    values = Partner.browse(partner_id)
-            elif partner_id == -1:
-                mode = ('new', 'shipping')
-            else: # no mode - refresh without post?
-                return request.redirect('/shop/checkout')
+        self.checkout_form_save(values["checkout"])
 
-        # IF POSTED
-        if 'submitted' in kw:
-            pre_values = self.values_preprocess(order, mode, kw)
-            errors, error_msg = self.checkout_form_validate(mode, kw, pre_values)
-            post, errors, error_msg = self.values_postprocess(order, mode, pre_values, errors, error_msg)
+        order.onchange_partner_shipping_id()
+        order.order_line._compute_tax_id()
 
-            if errors:
-                errors['error_message'] = error_msg
-                values = kw
-            else:
-                partner_id = self._checkout_form_save(mode, post, kw)
+        request.session['sale_last_order_id'] = order.id
+        request.session['comment'] = order.comment
 
-                if mode[1] == 'billing':
-                    order.partner_id = partner_id
-                    order.onchange_partner_id()
-                elif mode[1] == 'shipping':
-                    order.partner_shipping_id = partner_id
+        request.website.sale_get_order(update_pricelist=True, context=context)
 
-                order.message_partner_ids = [(4, partner_id), (3, request.website.partner_id.id)]
-                if not errors:
-                    return request.redirect(kw.get('callback') or '/shop/checkout')
+        extra_step = registry['ir.model.data'].xmlid_to_object(cr, uid, 'website_sale.extra_info_option', raise_if_not_found=True)
+        if extra_step.active:
+            return request.redirect("/shop/extra_info")
 
-        country = 'country_id' in values and values['country_id'] != '' and request.env['res.country'].browse(int(values['country_id']))
-        country = country and country.exists() or def_country_id
-        render_values = {
-            'partner_id': partner_id,
-            'mode': mode,
-            'checkout': values,
-            'country': country,
-            'countries': country.get_website_sale_countries(mode=mode[1]),
-            "states": country.get_website_sale_states(mode=mode[1]),
-            'error': errors,
-            'callback': kw.get('callback'),
-        }
-        return request.render("website_sale.address", render_values)
+        return request.redirect("/shop/payment")
