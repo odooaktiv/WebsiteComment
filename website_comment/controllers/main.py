@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
-from openerp import SUPERUSER_ID
 
-import openerp
 from openerp import http
-from openerp import fields, api, _
 from openerp.http import request
-from openerp.osv.orm import browse_record
 from openerp.addons.website_sale.controllers.main import website_sale
+
 
 class Webcomment(website_sale):
 
-    @http.route(['/shop/confirm_order'], type='http', auth="public", website=True)
+    @http.route(['/shop/confirm_order'], type='http',
+                auth="public", website=True)
     def confirm_order(self, **post):
-        cr, uid, context, registry = request.cr, request.uid, request.context, request.registry
+        cr, uid, context, registry = request.cr, request.uid,
+        request.context, request.registry
 
         order = request.website.sale_get_order(context=context)
         if order:
@@ -27,7 +26,8 @@ class Webcomment(website_sale):
 
         values = self.checkout_values(post)
 
-        values["error"], values["error_message"] = self.checkout_form_validate(values["checkout"])
+        values["error"], values["error_message"] = self.checkout_form_validate(
+            values["checkout"])
         if values["error"]:
             return request.website.render("website_sale.checkout", values)
 
@@ -41,7 +41,8 @@ class Webcomment(website_sale):
 
         request.website.sale_get_order(update_pricelist=True, context=context)
 
-        extra_step = registry['ir.model.data'].xmlid_to_object(cr, uid, 'website_sale.extra_info_option', raise_if_not_found=True)
+        extra_step = registry['ir.model.data'].xmlid_to_object(
+            cr, uid, 'website_sale.extra_info_option', raise_if_not_found=True)
         if extra_step.active:
             return request.redirect("/shop/extra_info")
 
