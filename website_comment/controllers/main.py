@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
-from odoo import SUPERUSER_ID
 
-import odoo
 from odoo import http
-from odoo import fields, api, _
 from odoo.http import request
-from odoo.osv.orm import browse_record
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 
-class Webcomment(WebsiteSale):
-    
 
-    @http.route(['/shop/address'], type='http', methods=['GET', 'POST'], auth="public", website=True)
+class Webcomment(WebsiteSale):
+
+    @http.route(['/shop/address'], type='http', methods=['GET', 'POST'],
+                auth="public", website=True)
     def address(self, **kw):
-        Partner = request.env['res.partner'].with_context(show_address=1).sudo()
+        Partner = request.env['res.partner'].with_context(
+            show_address=1).sudo()
         order = request.website.sale_get_order()
         if order:
             order.write({'comment': kw.get('comment')})
-
 
         redirection = self.checkout_redirection(order)
         if redirection:
@@ -34,7 +31,8 @@ class Webcomment(WebsiteSale):
             mode = ('new', 'billing')
             country_code = request.session['geoip'].get('country_code')
             if country_code:
-                def_country_id = request.env['res.country'].search([('code', '=', country_code)], limit=1)
+                def_country_id = request.env['res.country'].search(
+                    [('code', '=', country_code)], limit=1)
             else:
                 def_country_id = request.website.user_id.sudo().country_id
         # IF ORDER LINKED TO A PARTNER
@@ -43,7 +41,9 @@ class Webcomment(WebsiteSale):
                 if partner_id == order.partner_id.id:
                     mode = ('edit', 'billing')
                 else:
-                    shippings = Partner.search([('id', 'child_of', order.partner_id.commercial_partner_id.ids)])
+                    shippings = Partner.search(
+                        [('id', 'child_of', order.partner_id
+                            .commercial_partner_id.ids)])
                     if partner_id in shippings.mapped('id'):
                         mode = ('edit', 'shipping')
                     else:
@@ -52,14 +52,16 @@ class Webcomment(WebsiteSale):
                     values = Partner.browse(partner_id)
             elif partner_id == -1:
                 mode = ('new', 'shipping')
-            else: # no mode - refresh without post?
+            else:  # no mode - refresh without post?
                 return request.redirect('/shop/checkout')
 
         # IF POSTED
         if 'submitted' in kw:
             pre_values = self.values_preprocess(order, mode, kw)
-            errors, error_msg = self.checkout_form_validate(mode, kw, pre_values)
-            post, errors, error_msg = self.values_postprocess(order, mode, pre_values, errors, error_msg)
+            errors, error_msg = self.checkout_form_validate(
+                mode, kw, pre_values)
+            post, errors, error_msg = self.values_postprocess(
+                order, mode, pre_values, errors, error_msg)
 
             if errors:
                 errors['error_message'] = error_msg
@@ -73,11 +75,15 @@ class Webcomment(WebsiteSale):
                 elif mode[1] == 'shipping':
                     order.partner_shipping_id = partner_id
 
-                order.message_partner_ids = [(4, partner_id), (3, request.website.partner_id.id)]
+                order.message_partner_ids = [
+                    (4, partner_id), (3, request.website.partner_id.id)]
                 if not errors:
-                    return request.redirect(kw.get('callback') or '/shop/checkout')
+                    return request.redirect(kw.get('callback') or
+                                            '/shop/checkout')
 
-        country = 'country_id' in values and values['country_id'] != '' and request.env['res.country'].browse(int(values['country_id']))
+        country = 'country_id' in values and values
+        ['country_id'] != '' and request.env['res.country'].browse(
+            int(values['country_id']))
         country = country and country.exists() or def_country_id
         render_values = {
             'partner_id': partner_id,
