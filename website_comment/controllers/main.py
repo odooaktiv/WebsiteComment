@@ -10,8 +10,8 @@ class Webcomment(website_sale):
     @http.route(['/shop/confirm_order'], type='http',
                 auth="public", website=True)
     def confirm_order(self, **post):
-        cr, uid, context, registry = request.cr, request.uid,
-        request.context, request.registry
+        cr, uid, context, registry = request.cr, request.uid, request.context,\
+            request.registry
 
         order = request.website.sale_get_order(context=context)
         if order:
