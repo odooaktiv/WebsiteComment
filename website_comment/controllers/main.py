@@ -10,7 +10,7 @@ class Webcomment(WebsiteSale):
     @http.route(['/shop/address'], type='http', methods=['GET', 'POST'],
                 auth="public", website=True)
     def address(self, **kw):
-        Partner = request.env['res.partner'].with_context(
+        partner = request.env['res.partner'].with_context(
             show_address=1).sudo()
         order = request.website.sale_get_order()
         if order:
@@ -41,7 +41,7 @@ class Webcomment(WebsiteSale):
                 if partner_id == order.partner_id.id:
                     mode = ('edit', 'billing')
                 else:
-                    shippings = Partner.search(
+                    shippings = partner.search(
                         [('id', 'child_of', order.partner_id
                             .commercial_partner_id.ids)])
                     if partner_id in shippings.mapped('id'):
@@ -49,7 +49,7 @@ class Webcomment(WebsiteSale):
                     else:
                         return Forbidden()
                 if mode:
-                    values = Partner.browse(partner_id)
+                    values = partner.browse(partner_id)
             elif partner_id == -1:
                 mode = ('new', 'shipping')
             else:  # no mode - refresh without post?
@@ -81,8 +81,8 @@ class Webcomment(WebsiteSale):
                     return request.redirect(kw.get('callback') or
                                             '/shop/checkout')
 
-        country = 'country_id' in values and values
-        ['country_id'] != '' and request.env['res.country'].browse(
+        country = 'country_id' in values and values['country_id'] \
+            != '' and request.env['res.country'].browse(
             int(values['country_id']))
         country = country and country.exists() or def_country_id
         render_values = {
