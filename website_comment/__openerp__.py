@@ -2,7 +2,7 @@
 {
     'name': 'Website Comment',
     'category': 'sale',
-    'version': '1.1',
+    'version': '9.0.1.0.0',
     'summary': 'This module adds a comment on website checkout.',
     'website': 'http://www.aktivsoftware.com',
     'author': 'Aktiv Software',
