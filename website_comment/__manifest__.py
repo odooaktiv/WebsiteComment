@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Website Comment',
-    'category': 'sale',
+    'category': 'Website',
     'version': '11.0.1.0.0',
     'summary': 'This module adds a comment on website checkout.',
     'website': 'http://www.aktivsoftware.com',
